@@ -1,25 +1,25 @@
-FROM fluent/fluentd:v1.11-debian-1
+FROM fluent/fluentd:v1.0-debian-onbuild
 
-# Use root account to use apt
-USER root
-
-# below RUN includes plugin as examples elasticsearch is not required
-# you may customize including plugins as you wish
-RUN buildDeps="sudo make gcc g++ libc-dev" \
+RUN buildDeps="sudo make gcc g++ libc-dev ruby-dev" \
    && apt-get update \
    && apt-get install -y --no-install-recommends $buildDeps \
-   && sudo gem install fluent-plugin-secure-forward \
-   && sudo gem install fluent-plugin-elasticsearch \
-   && sudo gem install fluent-plugin-parser \
+   && sudo gem install \
+   fluent-plugin-secure-forward \
+   && sudo gem install \
+   fluent-plugin-elasticsearch \
+   && sudo gem install \
+   fluent-plugin-parser \
+   && sudo gem install \
+   fluent-plugin-ua-parser \
+   && sudo gem install \
+   fluent-plugin-concat \
    && sudo gem sources --clear-all \
    && SUDO_FORCE_REMOVE=yes \
    apt-get purge -y --auto-remove \
    -o APT::AutoRemove::RecommendsImportant=false \
    $buildDeps \
-   && rm -rf /var/lib/apt/lists/* \
-   && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
+   && rm -rf /var/cache/apk/* \
+   /home/fluent/.gem/ruby/2.3.0/cache/*.gem
 
-#COPY fluent.conf /fluentd/etc/
-#COPY entrypoint.sh /bin/
-
-USER fluent
+EXPOSE 24284
+EXPOSE 9880
